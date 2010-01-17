@@ -10,6 +10,7 @@ import org.neverfear.whois.WhoisResponse;
 
 import junit.framework.TestCase;
 
+// These tests may not be yet working. I've not checked for a while.
 public class GoogleTest extends TestCase {
 
 	protected void setUp() throws Exception {
