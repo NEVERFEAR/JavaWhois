@@ -1,8 +1,10 @@
 package org.neverfear.whois;
 
-import java.util.HashMap;
-import java.net.UnknownHostException;
 import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A class representing a pool of WHOIS servers.
@@ -372,6 +374,15 @@ public class WhoisServerPool {
 		    put("-sixxs",   			new WhoisServer("-sixxs",      				new ResolveDefault("whois.sixxs.net")));
 		}
 	};
+	
+	/**
+	 * Get a list of supported TLDs. The result set contains dots and hyphens for the appropriate suffixes. e.g. '.eu.org' or '-sixxs'.
+	 * @return Gets a set of supported top level domains.
+	 */
+	public static Set<String> getSupportedTLDSet()
+	{
+		return new HashSet<String>(servers.keySet());
+	}
 	
 	/**
 	 * Extract the TLD from the given name.

@@ -3,7 +3,7 @@ package org.neverfear.whois.examples;
 import org.neverfear.whois.WhoisQuery;
 import org.neverfear.whois.WhoisResponse;
 
-public class ExampleQuery {
+public class ExampleQuery extends Object {
 	public static void main(String [] args) throws Exception {
 		WhoisQuery query = new WhoisQuery("neverfear.org");
 		WhoisResponse response = query.getResponse();
