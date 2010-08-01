@@ -18,6 +18,16 @@ public class WhoisResponse {
 		query = name;
 		reply = data;
 	}
+
+	/**
+	 * Construct a response for the name. Protected constructor.
+	 * @param name The domain name.
+	 */
+	protected WhoisResponse(String name)
+	{
+		query = name;
+		reply = null;
+	}
 	
 	/**
 	 * Get the response contents.
@@ -25,6 +35,15 @@ public class WhoisResponse {
 	 */
 	public String getData() {
 		return reply;
+	}
+	
+	/**
+	 * Set the data. Protected.
+	 * @param data
+	 */
+	protected void setData(String data)
+	{
+		reply = data;
 	}
 	
 	/**

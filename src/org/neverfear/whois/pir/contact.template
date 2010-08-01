@@ -1,0 +1,15 @@
+%1$s ID:%2$s
+%1$s Name:%3$s
+%1$s Organization:%4$s
+%1$s Street1:%5$s
+%1$s Street2:%6$s
+%1$s Street3:%7$s
+%1$s City:%8$s
+%1$s State/Province:%9$s
+%1$s Postal Code:%10$s
+%1$s Country:%11$s
+%1$s Phone:%12$s
+%1$s Phone Ext.:%13$s
+%1$s FAX:%14$s
+%1$s FAX Ext.:%15$s
+%1$s Email:%16$s

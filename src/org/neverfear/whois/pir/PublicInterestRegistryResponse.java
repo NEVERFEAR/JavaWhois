@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class PIRDomainInfo extends PIRParser {
+public class PublicInterestRegistryResponse extends ParsedPIRResponse {
 
 	/*
 	 * Status:CLIENT DELETE PROHIBITED Status:CLIENT RENEW PROHIBITED
@@ -20,18 +20,44 @@ public class PIRDomainInfo extends PIRParser {
 	private Date				expirationDate;
 	private String				registrar;
 	// TODO: Status
-	private List<String>		nameservers	= new ArrayList<String>();
-	private String				dnsSecurity;							// Should
-																		// this
-																		// be a
-																		// Boolean?
+	private List<String>		nameservers;
+	private String				dnsSecurity;	// Should
+	// this
+	// be a
+	// Boolean?
 	private RegistrantContact	registrant;
 	private AdminContact		admin;
 	private TechContact			tech;
 
-	public PIRDomainInfo(String name, String data) throws ParseException, IOException {
-		super(name, data);
-		parse(data);
+
+	/**
+	 * Construct a PIR response around a query name. This object will need configuring.
+	 * Then when you call getData() it will generate appropriate PIR formatted text.
+	 * @param name
+	 * @throws ParseException
+	 * @throws IOException
+	 */
+	public PublicInterestRegistryResponse( String name ) {
+		super( name );
+		initCommon();
+	}
+	
+	/**
+	 * Construct a PIR response around a query name and some response data.
+	 * @param name
+	 * @param data
+	 * @throws ParseException
+	 * @throws IOException
+	 */
+	public PublicInterestRegistryResponse( String name, String data ) throws ParseException, IOException {
+		super( name, data );
+		initCommon();
+		parse( data );
+	}
+	
+	private void initCommon()
+	{
+		nameservers = new ArrayList<String>();
 	}
 
 	public String getID() {
@@ -39,7 +65,7 @@ public class PIRDomainInfo extends PIRParser {
 	}
 
 	@Override
-	protected void setID(String iD) {
+	protected void setID( String iD ) {
 		ID = iD;
 	}
 
@@ -48,7 +74,7 @@ public class PIRDomainInfo extends PIRParser {
 	}
 
 	@Override
-	protected void setName(String name) {
+	protected void setName( String name ) {
 		this.name = name;
 	}
 
@@ -57,7 +83,7 @@ public class PIRDomainInfo extends PIRParser {
 	}
 
 	@Override
-	protected void setCreatedOn(Date createdOn) {
+	protected void setCreatedOn( Date createdOn ) {
 		this.createdOn = createdOn;
 	}
 
@@ -66,7 +92,7 @@ public class PIRDomainInfo extends PIRParser {
 	}
 
 	@Override
-	protected void setLastUpdated(Date lastUpdated) {
+	protected void setLastUpdated( Date lastUpdated ) {
 		this.lastUpdated = lastUpdated;
 	}
 
@@ -75,7 +101,7 @@ public class PIRDomainInfo extends PIRParser {
 	}
 
 	@Override
-	protected void setExpirationDate(Date expirationDate) {
+	protected void setExpirationDate( Date expirationDate ) {
 		this.expirationDate = expirationDate;
 	}
 
@@ -84,7 +110,7 @@ public class PIRDomainInfo extends PIRParser {
 	}
 
 	@Override
-	protected void setRegistrar(String registrar) {
+	protected void setRegistrar( String registrar ) {
 		this.registrar = registrar;
 	}
 
@@ -93,7 +119,7 @@ public class PIRDomainInfo extends PIRParser {
 	}
 
 	@Override
-	protected void setDnsSecurity(String dnsSecurity) {
+	protected void setDnsSecurity( String dnsSecurity ) {
 		this.dnsSecurity = dnsSecurity;
 	}
 
@@ -115,8 +141,8 @@ public class PIRDomainInfo extends PIRParser {
 	 * @return true or false.
 	 */
 	@Override
-	protected boolean addNameServer(String nameserver) {
-		return nameservers.add(nameserver);
+	protected boolean addNameServer( String nameserver ) {
+		return nameservers.add( nameserver );
 	}
 
 	/**
@@ -127,8 +153,8 @@ public class PIRDomainInfo extends PIRParser {
 	 * @return true or false.
 	 */
 	@Override
-	protected boolean removeNameServer(String nameserver) {
-		return nameservers.remove(nameserver);
+	protected boolean removeNameServer( String nameserver ) {
+		return nameservers.remove( nameserver );
 	}
 
 	/**
@@ -138,8 +164,8 @@ public class PIRDomainInfo extends PIRParser {
 	 *            A hostname.
 	 * @return true or false.
 	 */
-	public boolean hasNameServer(String nameserver) {
-		return nameservers.contains(nameserver);
+	public boolean hasNameServer( String nameserver ) {
+		return nameservers.contains( nameserver );
 	}
 
 	/**
@@ -148,14 +174,14 @@ public class PIRDomainInfo extends PIRParser {
 	 * @return A List of Strings
 	 */
 	public List<String> getNameServers() {
-		return new ArrayList<String>(nameservers);
+		return new ArrayList<String>( nameservers );
 	}
 
 	public RegistrantContact getRegistrant() {
 		return registrant;
 	}
 
-	protected void setRegistrant(RegistrantContact registrant) {
+	protected void setRegistrant( RegistrantContact registrant ) {
 		this.registrant = registrant;
 	}
 
@@ -163,7 +189,7 @@ public class PIRDomainInfo extends PIRParser {
 		return admin;
 	}
 
-	protected void setAdmin(AdminContact admin) {
+	protected void setAdmin( AdminContact admin ) {
 		this.admin = admin;
 	}
 
@@ -171,15 +197,28 @@ public class PIRDomainInfo extends PIRParser {
 		return tech;
 	}
 
-	protected void setTech(TechContact tech) {
+	protected void setTech( TechContact tech ) {
 		this.tech = tech;
 	}
 
 	@Override
 	public String toString() {
-		return "PIRDomainInfo [ID=" + ID + ", admin=" + admin + ", createdOn=" + createdOn + ", dnsSecurity=" + dnsSecurity
+		return "PublicInterestRegistryResponse [ID=" + ID + ", admin=" + admin + ", createdOn=" + createdOn + ", dnsSecurity=" + dnsSecurity
 				+ ", expirationDate=" + expirationDate + ", lastUpdated=" + lastUpdated + ", name=" + name + ", nameservers=" + nameservers
 				+ ", registrant=" + registrant + ", registrar=" + registrar + ", tech=" + tech + "]";
+	}
+
+	/**
+	 * Parse the data and create a ParsedPIRResponse object.
+	 * 
+	 * @param name
+	 *            The queried name.
+	 * @param data
+	 *            The whois response data.
+	 * @return A built ParsedPIRResponse.
+	 */
+	public static PublicInterestRegistryResponse createResponse( String name, String data ) throws IOException, ParseException {
+		return new PublicInterestRegistryResponse( name, data );
 	}
 
 }

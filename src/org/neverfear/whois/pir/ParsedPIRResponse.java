@@ -13,12 +13,12 @@ import java.util.regex.Pattern;
 import org.neverfear.whois.WhoisResponse;
 
 /**
- * Parses a PIR response
+ * A parsed public interest registry response.
  * 
  * @author doug@neverfear.org
  * 
  */
-public abstract class PIRParser extends WhoisResponse {
+public abstract class ParsedPIRResponse extends WhoisResponse {
 
 	private static final DateFormat	format						= new SimpleDateFormat( "dd-MMM-yyyy HH:mm:ss z" );
 	private static final String		regexDate					= "([0-9]{1,2}\\-[A-Za-z]{3}\\-[0-9]{4} [0-9]{1,2}:[0-9]{2}:[0-9]{2} .*)";
@@ -53,11 +53,45 @@ public abstract class PIRParser extends WhoisResponse {
 	private static final String		ADMIN_PREFIX				= "Admin ";
 	private static final String		TECH_PREFIX					= "Tech ";
 
-	public PIRParser( String name, String data ) throws ParseException, IOException {
+
+	/**
+	 * Construct a PIR parsed whois response. Protected constructor.
+	 * 
+	 * @param name
+	 *            The name that was queried.
+	 */
+	protected ParsedPIRResponse( String name ) {
+		super( name );
+	}
+	
+	/**
+	 * Construct a PIR parsed whois response.
+	 * 
+	 * @param name
+	 *            The name that was queried.
+	 * @param data
+	 *            The response data.
+	 * @throws ParseException
+	 * @throws IOException
+	 */
+	public ParsedPIRResponse( String name, String data ) throws ParseException, IOException {
 		super( name, data );
 	}
 
-	protected boolean parseContact( String line, AbstractContact contact, String prefix ) throws ParseException {
+	/**
+	 * Parse the line for specific contact information and load it into contact.
+	 * 
+	 * @param line
+	 *            A line of response data.
+	 * @param contact
+	 *            A contact instance.
+	 * @param prefix
+	 *            The contact line prefix.
+	 * @return true if the line was recognised as a contact information and set
+	 *         on the object. false otherwise.
+	 * @throws ParseException
+	 */
+	protected static boolean parseContact( String line, AbstractContact contact, String prefix ) throws ParseException {
 		if ( !line.startsWith( prefix ) ) {
 			return false;
 		}
@@ -143,19 +177,20 @@ public abstract class PIRParser extends WhoisResponse {
 	}
 
 	/**
-	 * Parse the given PIR data
+	 * Parse the given public interest registry response data.
 	 * 
 	 * @param data
-	 * @return
+	 *            The response data.
+	 * @return true.
 	 * @throws ParseException
+	 * @throws IOException
 	 */
-	protected boolean parse( String data ) throws ParseException, IOException {
+	protected synchronized boolean parse( String data ) throws ParseException, IOException {
+		Matcher match;
 
 		RegistrantContact registrant = new RegistrantContact();
 		AdminContact admin = new AdminContact();
 		TechContact tech = new TechContact();
-
-		Matcher match;
 
 		clearNameServers();
 
@@ -164,7 +199,6 @@ public abstract class PIRParser extends WhoisResponse {
 		String line;
 
 		while ( (line = reader.readLine()) != null ) {
-
 			if ( (match = patternDomainID.matcher( line )).matches() ) {
 				setID( match.group( 1 ) );
 				continue;
@@ -208,7 +242,10 @@ public abstract class PIRParser extends WhoisResponse {
 			}
 
 			if ( (match = patternNameServer.matcher( line )).matches() ) {
-				addNameServer( match.group( 1 ) );
+				String nameServer = match.group( 1 ).trim();
+				if ( nameServer.length() != 0 ) {
+					addNameServer( nameServer );
+				}
 				continue;
 			}
 
@@ -226,42 +263,153 @@ public abstract class PIRParser extends WhoisResponse {
 		return true;
 	}
 
+	/**
+	 * Clear out the list of name servers.
+	 */
 	protected abstract void clearNameServers();
 
+	/**
+	 * Remove the name server from the name server list.
+	 * 
+	 * @param nameserver
+	 *            A hostname.
+	 * @return
+	 */
 	protected abstract boolean removeNameServer( String nameserver );
 
+	/**
+	 * Add a name server to the name server list.
+	 * 
+	 * @param nameserver
+	 *            A hostname.
+	 * @return
+	 */
 	protected abstract boolean addNameServer( String nameserver );
 
+	/**
+	 * Set whether DNS security is enabled as a string.
+	 * 
+	 * @param dnsSecurity
+	 */
 	protected abstract void setDnsSecurity( String dnsSecurity );
 
+	/**
+	 * Set the sponsoring registrar.
+	 * 
+	 * @param registrar
+	 */
 	protected abstract void setRegistrar( String registrar );
 
+	/**
+	 * Set the expiration date as a string.
+	 * 
+	 * @param expirationDate
+	 *            the expiration date.
+	 */
 	protected abstract void setExpirationDate( Date expirationDate );
 
+	/**
+	 * Set the last updated date as a string.
+	 * 
+	 * @param lastUpdated
+	 *            the date last updated.
+	 */
 	protected abstract void setLastUpdated( Date lastUpdated );
 
+	/**
+	 * Set the created on date as a string.
+	 * 
+	 * @param createdOn
+	 *            the creation date.
+	 */
 	protected abstract void setCreatedOn( Date createdOn );
 
+	/**
+	 * Set the queried name.
+	 * 
+	 * @param name
+	 */
 	protected abstract void setName( String name );
 
+	/**
+	 * Set the response ID
+	 * 
+	 * @param id
+	 */
 	protected abstract void setID( String id );
 
+	/**
+	 * Set the registrant contact.
+	 * 
+	 * @param registrant
+	 *            A contact object.
+	 */
 	protected abstract void setRegistrant( RegistrantContact registrant );
 
+	/**
+	 * Set the administrative contact.
+	 * 
+	 * @param admin
+	 *            A contact object.
+	 */
 	protected abstract void setAdmin( AdminContact admin );
 
+	/**
+	 * Set the technical contact.
+	 * 
+	 * @param tech
+	 *            A contact object.
+	 */
 	protected abstract void setTech( TechContact tech );
 
+	/**
+	 * Set the expiration date as a string. This is parsed and compiled into a
+	 * Date object.
+	 * 
+	 * @param expirationDate
+	 *            A date string in the following format: dd-MMM-yyyy HH:mm:ss z.
+	 * @throws ParseException
+	 */
 	protected void setExpirationDate( String expirationDate ) throws ParseException {
 		setExpirationDate( format.parse( expirationDate ) );
 	}
 
+	/**
+	 * Set the last updated date as a string. This is parsed and compiled into a
+	 * Date object.
+	 * 
+	 * @param lastUpdated
+	 *            A date string in the following format: dd-MMM-yyyy HH:mm:ss z.
+	 * @throws ParseException
+	 */
 	protected void setLastUpdated( String lastUpdated ) throws ParseException {
 		setLastUpdated( format.parse( lastUpdated ) );
 	}
 
+	/**
+	 * Set the created on date as a string. This is parsed and compiled into a
+	 * Date object.
+	 * 
+	 * @param createdOn
+	 *            A date string in the following format: dd-MMM-yyyy HH:mm:ss z.
+	 * @throws ParseException
+	 */
 	protected void setCreatedOn( String createdOn ) throws ParseException {
 		setCreatedOn( format.parse( createdOn ) );
 	}
+
+	@Override
+	public String getData() {
+		if (super.getData() == null)
+		{
+			StringBuffer buffer = new StringBuffer();
+			
+			buffer.append( "Domain ID:" );
+			
+			setData(buffer.toString());
+		}
+		return super.getData();
+	}
+	
 
 }
