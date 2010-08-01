@@ -1,1 +1,5 @@
 org.neverfear.whois
+org.neverfear.whois.crsnic
+org.neverfear.whois.examples
+org.neverfear.whois.pir
+org.neverfear.whois.tests
