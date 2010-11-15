@@ -1,3 +1,5 @@
 JavaWhois is a lightweight Java API component for querying whois servers for named records (usually domain names)
 
-This work is licensed under the General Public License version 2.
+This work is licensed under the General Public License version 2. A copy of which has been included in this package.
+
+Author: doug@neverfear.org
