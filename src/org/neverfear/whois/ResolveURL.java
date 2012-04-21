@@ -32,8 +32,7 @@ public class ResolveURL implements ServerResolver {
 	@Override
 	public WhoisResponse query(String domain) throws IOException,
 			UnknownHostException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("URLs are currently not supported");
 	}
 
 }

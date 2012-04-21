@@ -1,10 +1,13 @@
-package org.neverfear.whois.pir;
+package org.neverfear.whois.parsers.pir;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.neverfear.whois.WhoisResponse;
+import org.neverfear.whois.parsers.WhoisParseException;
 
 public class PublicInterestRegistryResponse extends ParsedPIRResponse {
 
@@ -49,14 +52,17 @@ public class PublicInterestRegistryResponse extends ParsedPIRResponse {
 	 * @throws ParseException
 	 * @throws IOException
 	 */
-	public PublicInterestRegistryResponse( String name, String data ) throws ParseException, IOException {
+	public PublicInterestRegistryResponse( String name, String data ) throws WhoisParseException {
 		super( name, data );
 		initCommon();
 		parse( data );
 	}
 	
-	private void initCommon()
-	{
+	public PublicInterestRegistryResponse( WhoisResponse response) throws WhoisParseException {
+		this(response.getName(), response.getData());
+	}
+	
+	private void initCommon() {
 		nameservers = new ArrayList<String>();
 	}
 
@@ -217,7 +223,7 @@ public class PublicInterestRegistryResponse extends ParsedPIRResponse {
 	 *            The whois response data.
 	 * @return A built ParsedPIRResponse.
 	 */
-	public static PublicInterestRegistryResponse createResponse( String name, String data ) throws IOException, ParseException {
+	public static PublicInterestRegistryResponse create( String name, String data ) throws WhoisParseException {
 		return new PublicInterestRegistryResponse( name, data );
 	}
 

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="org.neverfear.whois" default="dist" basedir=".">
+
+	<property file="build.properties" />
+
+	<path id="classpath">
+		<fileset dir=".">
+			<include name="lib/**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="clean-all-except-dist">
+		<delete dir="${classes.dir}" />
+	</target>
+
+	<target name="clean" 
+		description="Remove all files created by the build/test process." 
+		depends="clean-all-except-dist">
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<target name="init" depends="clean">
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${classes.dir}" />
+	</target>
+
+	<target name="compile" depends="init">
+		<javac srcdir="${src.dir}" destdir="${classes.dir}" debug="yes">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="${dist.dir}/${jar.name}-${jar.version}.jar">
+			<fileset dir="${classes.dir}" />
+			<manifest>
+				<attribute name="Implementation-Vendor"
+					value="${manifest.implementation.vendor}" />
+				<attribute name="Implementation-Title" 
+					value="${manifest.implementation.title}" />
+				<attribute name="Implementation-Version"
+					value="${manifest.implementation.version}" />
+				<attribute name="Main-Class" value="${manifest.main.class}" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="dist" depends="jar">
+		<antcall target="clean-all-except-dist" />
+	</target>
+
+</project>

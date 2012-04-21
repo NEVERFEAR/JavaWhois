@@ -1,4 +1,4 @@
-package org.neverfear.whois.crsnic;
+package org.neverfear.whois.parsers.crsnic;
 
 /**
  * Generalised information on CRSNIC contacts.
