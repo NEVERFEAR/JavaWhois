@@ -1,4 +1,4 @@
-package org.neverfear.whois.pir;
+package org.neverfear.whois.parsers.pir;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -181,9 +181,9 @@ public abstract class AbstractContact {
 	 * Get the constructed PIR data for this contact.
 	 * @return
 	 */
-	public String getData(String linePrefix) throws IOException
-	{
-		String template = loadResource("org/neverfear/whois/pir/contact.template");
+	public String getData(String linePrefix) throws IOException {
+		
+		String template = loadResource(getClass().getPackage().getName() + "/contact.template");
 		return String.format( template, linePrefix, getID(), getName(), getOrganization(), getStreet1(), getStreet2(), getStreet3(), 
 				getCity(), getProvince(), getPostalCode(), getCountry(), getPhone(), getPhoneExtension(), getFax(), getFaxExtension(), 
 				getEmail());

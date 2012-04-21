@@ -67,6 +67,17 @@ public class ResolveCRSNIC implements ServerResolver {
 	}
 	
 	/**
+	 * Perform an full search on the CRSNIC database for the given name.
+	 * @param name A domain name.
+	 * @return A {@link WhoisResponse} object.
+	 * @throws IOException
+	 * @throws UnknownHostException
+	 */
+	public WhoisResponse fullSearch(String name) throws IOException, UnknownHostException {
+		return search(name, "full ");
+	}
+	
+	/**
 	 * Perform an exact search on the CRSNIC database for the given name.
 	 * @param name A domain name.
 	 * @return A {@link WhoisResponse} object.
@@ -74,7 +85,7 @@ public class ResolveCRSNIC implements ServerResolver {
 	 * @throws UnknownHostException
 	 */
 	public WhoisResponse exactSearch(String name) throws IOException, UnknownHostException {
-		return search(name, "full ");
+		return search(name, "domain ");
 	}
 	
 	/**
