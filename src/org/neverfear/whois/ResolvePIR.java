@@ -22,6 +22,7 @@ public class ResolvePIR extends ResolveCRSNIC {
 	 */
 	private ResolvePIR() {
 		super(WHOIS_HOST);
+		// TODO: Fix this properly!
 		super.WHOIS_STR = WHOIS_STR;
 		super.DOMAIN_STR = DOMAIN_STR;
 	}
