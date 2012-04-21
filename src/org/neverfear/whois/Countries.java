@@ -280,8 +280,7 @@ public class Countries {
 	
 	public final static Set<String> COUNTRY_SET = new HashSet<String>(Arrays.asList( COUNTRIES ));
 	
-	public static boolean isCountry(String name)
-	{
+	public static boolean isCountry(String name) {
 		return COUNTRY_SET.contains( name );
 	}
 	
