@@ -26,174 +26,191 @@ import org.neverfear.whois.pir.TechContact;
  */
 public abstract class ParsedCRSNICResponse extends WhoisResponse {
 
-	private static final String		PATTERN_PHONE_NUMBER			= "\\+?[0-9]{0,3}\\.?[0-9]+";
+	private static final String PATTERN_PHONE_NUMBER = "\\+?[0-9]{0,3}\\.?[0-9]+";
 
 	// Not RFC 822 but it'll do for now
-	private static final String		PATTERN_EMAIL_822				= "(?:(?:\\r\\n)?[ \\t])*(?:(?:(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+"
-																			+ "(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))"
-																			+ "|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r\\n)"
-																			+ "?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] "
-																			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\"."
-																			+ "\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[\\t]))*\"(?:(?:\\r"
-																			+ "\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] "
-																			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\"."
-																			+ "\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*](?:(?:\\r\\n)?[ \\t])*)(?:\\."
-																			+ "(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:"
-																			+ "(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]"
-																			+ "\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*|(?:[^()<>@,;:\\\\\".\\[\\]"
-																			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\"."
-																			+ "\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r"
-																			+ "\\n) ?[\\t])*)*\\<(?:(?:\\r\\n)?[ \\t])*(?:@(?:[^()<>@,;:\\\\\"."
-																			+ "\\[\\] \\000-\\031]+(?:(?:(?:\\ r\\n)?[\\t])+|\\Z|(?=[\\[\"()<>@,;:"
-																			+ "\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[\\t])*)"
-																			+ "(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+"
-																			+ "(?:(?:(?:\\r\\n) ?[\\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\["
-																			+ "([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*(?:,@(?:(?:\\r"
-																			+ "\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r"
-																			+ "\\n)?[\\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]"
-																			+ "\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t"
-																			+ "])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])"
-																			+ "+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*"
-																			+ "\\](?:(?:\\r\\n)?[ \\t])*))*)*:(?:(?:\\r\\n)?[ \\t])*)?(?:[^()<>@,;:"
-																			+ "\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()"
-																			+ "<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t"
-																			+ "]))*\"(?:(?:\\r \\n)?[\\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:"
-																			+ "\\\\\".\\[\\] \\000-\\031]+(?:(?:(?: \\r\\n)?[\\t])+|\\Z|(?=[\\[\"()"
-																			+ "<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t"
-																			+ "]))*\"(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:"
-																			+ "\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()"
-																			+ "<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?"
-																			+ "[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-"
-																			+ "\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))"
-																			+ "|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*\\>(?:(?:\\r"
-																			+ "\\n)?[ \\t])*)|(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r"
-																			+ "\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r"
-																			+ "\\\\]|\\\\.|(?:(?:\\r\\n)? [\\t]))*\"(?:(?:\\r\\n)?[ \\t])*)*:(?:(?:"
-																			+ "\\r\\n)?[ \\t])*(?:(?:(?:[^()<>@,;:\\\\\".\\[\\]\\000-\\031]+(?:(?:"
-																			+ "(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\"(?:"
-																			+ "[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r\\n)?[ "
-																			+ "\\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] "
-																			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:"
-																			+ "\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t])"
-																			+ ")*\"(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:"
-																			+ "\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=["
-																			+ "\\[\"()<>@,;:\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:"
-																			+ "\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:"
-																			+ "\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|"
-																			+ "(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)"
-																			+ "*\\](?:(?:\\r\\n)?[ \\t])*))*|(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]"
-																			+ "+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))"
-																			+ "|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r\\n)?"
-																			+ "[ \\t])*)*\\<(?:(?:\\r\\n)?[ \\t])*(?:@(?:[^()<>@,;:\\\\\".\\[\\]"
-																			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\"."
-																			+ "\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:"
-																			+ "\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\" .\\[\\]\\000-\\031]+"
-																			+ "(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|"
-																			+ "\\[([^\\[]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*(?:,@(?:(?:\\r"
-																			+ "\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\ [\\]\\000-\\031]+(?:(?:(?:\\r\\n)"
-																			+ "?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]r\\\\]|"
-																			+ "\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:"
-																			+ "[^()<>@,;:\\\\\".\\[\\]\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|"
-																			+ "(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\]"
-																			+ "(?:(?:\\r\\n)?[ \\t])*))*)*:(?:(?:\\r\\n)?[ \\t])*)?(?:[^()"
-																			+ "<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z"
-																			+ "|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\.|(?:"
-																			+ "(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:"
-																			+ "\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:"
-																			+ "(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|"
-																			+ "\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r"
-																			+ "\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\"."
-																			+ "\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?="
-																			+ "[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)"
-																			+ "*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:"
-																			+ "[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t"
-																			+ "])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r"
-																			+ "\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*\\>(?:(?:\\r\\n)?"
-																			+ "[ \\t])*)(?:,\\s*(?:(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+"
-																			+ "(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\".\\[\\]]))|"
-																			+ "\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r"
-																			+ "\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\"."
-																			+ "\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()"
-																			+ "<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r"
-																			+ "\\n)?[ \\t]))*\"(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?["
-																			+ "\\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r"
-																			+ "\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^"
-																			+ "\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:"
-																			+ "\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:"
-																			+ "(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\["
-																			+ "\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ "
-																			+ "\\t])*))*|(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:"
-																			+ "(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[]]))|"
-																			+ "\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:"
-																			+ "\\r\\n)?[ \\t])*)*\\<(?:(?:\\r\\n) ?[\\t])*(?:@(?:[^()<>@,;"
-																			+ ":\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|"
-																			+ "(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|"
-																			+ "\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n) ?["
-																			+ "\\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r"
-																			+ "\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[("
-																			+ "[^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*(?:,@(?:"
-																			+ "(?:\\r\\n)?[\\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+"
-																			+ "(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|"
-																			+ "\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:"
-																			+ "\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r"
-																			+ "\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|"
-																			+ "\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*)*:(?:(?:\\r\\n)?[ \\t])*)?(?:[^()"
-																			+ "<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=["
-																			+ "\\[\"()<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r"
-																			+ "\\n)?[ \\t]))*\"(?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])"
-																			+ "*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|"
-																			+ "\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:"
-																			+ "\\r\\n)?[ \\t]))*\"(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:"
-																			+ "[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?="
-																			+ "[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r"
-																			+ "\\n)?[ \\t])*)(?:.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] "
-																			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\"."
-																			+ "\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*\\>"
-																			+ "(?:(?:\\r\\n)?[ \\t])*))*)?;\\s*)";
+	private static final String PATTERN_EMAIL_822 = "(?:(?:\\r\\n)?[ \\t])*(?:(?:(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+"
+			+ "(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))"
+			+ "|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r\\n)"
+			+ "?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] "
+			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\"."
+			+ "\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[\\t]))*\"(?:(?:\\r"
+			+ "\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] "
+			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\"."
+			+ "\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*](?:(?:\\r\\n)?[ \\t])*)(?:\\."
+			+ "(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:"
+			+ "(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]"
+			+ "\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*|(?:[^()<>@,;:\\\\\".\\[\\]"
+			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\"."
+			+ "\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r"
+			+ "\\n) ?[\\t])*)*\\<(?:(?:\\r\\n)?[ \\t])*(?:@(?:[^()<>@,;:\\\\\"."
+			+ "\\[\\] \\000-\\031]+(?:(?:(?:\\ r\\n)?[\\t])+|\\Z|(?=[\\[\"()<>@,;:"
+			+ "\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[\\t])*)"
+			+ "(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+"
+			+ "(?:(?:(?:\\r\\n) ?[\\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\["
+			+ "([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*(?:,@(?:(?:\\r"
+			+ "\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r"
+			+ "\\n)?[\\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]"
+			+ "\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t"
+			+ "])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])"
+			+ "+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*"
+			+ "\\](?:(?:\\r\\n)?[ \\t])*))*)*:(?:(?:\\r\\n)?[ \\t])*)?(?:[^()<>@,;:"
+			+ "\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()"
+			+ "<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t"
+			+ "]))*\"(?:(?:\\r \\n)?[\\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:"
+			+ "\\\\\".\\[\\] \\000-\\031]+(?:(?:(?: \\r\\n)?[\\t])+|\\Z|(?=[\\[\"()"
+			+ "<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t"
+			+ "]))*\"(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:"
+			+ "\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()"
+			+ "<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?"
+			+ "[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-"
+			+ "\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))"
+			+ "|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*\\>(?:(?:\\r"
+			+ "\\n)?[ \\t])*)|(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r"
+			+ "\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r"
+			+ "\\\\]|\\\\.|(?:(?:\\r\\n)? [\\t]))*\"(?:(?:\\r\\n)?[ \\t])*)*:(?:(?:"
+			+ "\\r\\n)?[ \\t])*(?:(?:(?:[^()<>@,;:\\\\\".\\[\\]\\000-\\031]+(?:(?:"
+			+ "(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\"(?:"
+			+ "[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r\\n)?[ "
+			+ "\\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] "
+			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:"
+			+ "\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t])"
+			+ ")*\"(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:"
+			+ "\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=["
+			+ "\\[\"()<>@,;:\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:"
+			+ "\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:"
+			+ "\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|"
+			+ "(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)"
+			+ "*\\](?:(?:\\r\\n)?[ \\t])*))*|(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]"
+			+ "+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))"
+			+ "|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r\\n)?"
+			+ "[ \\t])*)*\\<(?:(?:\\r\\n)?[ \\t])*(?:@(?:[^()<>@,;:\\\\\".\\[\\]"
+			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\"."
+			+ "\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:"
+			+ "\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\" .\\[\\]\\000-\\031]+"
+			+ "(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|"
+			+ "\\[([^\\[]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*(?:,@(?:(?:\\r"
+			+ "\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\ [\\]\\000-\\031]+(?:(?:(?:\\r\\n)"
+			+ "?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]r\\\\]|"
+			+ "\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:"
+			+ "[^()<>@,;:\\\\\".\\[\\]\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|"
+			+ "(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\]"
+			+ "(?:(?:\\r\\n)?[ \\t])*))*)*:(?:(?:\\r\\n)?[ \\t])*)?(?:[^()"
+			+ "<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z"
+			+ "|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\.|(?:"
+			+ "(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:"
+			+ "\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:"
+			+ "(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|"
+			+ "\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r"
+			+ "\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\"."
+			+ "\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?="
+			+ "[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)"
+			+ "*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:"
+			+ "[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t"
+			+ "])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r"
+			+ "\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*\\>(?:(?:\\r\\n)?"
+			+ "[ \\t])*)(?:,\\s*(?:(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+"
+			+ "(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\".\\[\\]]))|"
+			+ "\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:\\r"
+			+ "\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\"."
+			+ "\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()"
+			+ "<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r"
+			+ "\\n)?[ \\t]))*\"(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?["
+			+ "\\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r"
+			+ "\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^"
+			+ "\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:"
+			+ "\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:"
+			+ "(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\["
+			+ "\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ "
+			+ "\\t])*))*|(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:"
+			+ "(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[]]))|"
+			+ "\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r\\n)?[ \\t]))*\"(?:(?:"
+			+ "\\r\\n)?[ \\t])*)*\\<(?:(?:\\r\\n) ?[\\t])*(?:@(?:[^()<>@,;"
+			+ ":\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|"
+			+ "(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|"
+			+ "\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n) ?["
+			+ "\\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r"
+			+ "\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[("
+			+ "[^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*(?:,@(?:"
+			+ "(?:\\r\\n)?[\\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+"
+			+ "(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|"
+			+ "\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:"
+			+ "\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r"
+			+ "\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|"
+			+ "\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*)*:(?:(?:\\r\\n)?[ \\t])*)?(?:[^()"
+			+ "<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=["
+			+ "\\[\"()<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:\\r"
+			+ "\\n)?[ \\t]))*\"(?:(?:\\r\\n)?[ \\t])*)(?:\\.(?:(?:\\r\\n)?[ \\t])"
+			+ "*(?:[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|"
+			+ "\\Z|(?=[\\[\"()<>@,;:\\\\\".\\[\\]]))|\"(?:[^\\\"\\r\\\\]|\\\\.|(?:(?:"
+			+ "\\r\\n)?[ \\t]))*\"(?:(?:\\r\\n)?[ \\t])*))*@(?:(?:\\r\\n)?[ \\t])*(?:"
+			+ "[^()<>@,;:\\\\\".\\[\\] \\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?="
+			+ "[\\[\"()<>@,;:\\\\\".\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r"
+			+ "\\n)?[ \\t])*)(?:.(?:(?:\\r\\n)?[ \\t])*(?:[^()<>@,;:\\\\\".\\[\\] "
+			+ "\\000-\\031]+(?:(?:(?:\\r\\n)?[ \\t])+|\\Z|(?=[\\[\"()<>@,;:\\\\\"."
+			+ "\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*\\>"
+			+ "(?:(?:\\r\\n)?[ \\t])*))*)?;\\s*)";
 
-	private static final DateFormat	format							= new SimpleDateFormat();
-	
+	private static final DateFormat format = new SimpleDateFormat();
+
 	// Name Servers
-	private static final Pattern	patternNameServers1Label		= Pattern.compile( "^Domain servers in listed order:$" );
-	private static final Pattern    patternNameServers2Label  		= Pattern.compile( "^Name Server[\\.]*[ ](.*?)$" );
-	
+	private static final Pattern patternNameServers1Label = Pattern
+			.compile("^Domain servers in listed order:$");
+	private static final Pattern patternNameServers2Label = Pattern
+			.compile("^Name Server[\\.]*[ ](.*?)$");
+
 	// Contact labels
-	private static final Pattern	patternRegistrantLabel			= Pattern.compile( "^Registrant(.*?)?:$" );
-	private static final Pattern	patternAdministratorLabel		= Pattern.compile( "^Administrative Contact(.*?)?:$" );
-	private static final Pattern	patternTechnicalLabel			= Pattern.compile( "^Technical Contact(.*?)?:$" );
-	
+	private static final Pattern patternRegistrantLabel = Pattern
+			.compile("^Registrant(.*?)?:$");
+	private static final Pattern patternAdministratorLabel = Pattern
+			.compile("^Administrative Contact(.*?)?:$");
+	private static final Pattern patternTechnicalLabel = Pattern
+			.compile("^Technical Contact(.*?)?:$");
+
 	// Contact information
-	private static final Pattern	patternEmailPhoneFax			= Pattern.compile( "^" + PATTERN_EMAIL_822 + " (" + PATTERN_PHONE_NUMBER + ") Fax: (" + PATTERN_PHONE_NUMBER + ")$" );
-	private static final Pattern	patternPhoneFax					= Pattern.compile( "^(" + PATTERN_PHONE_NUMBER + ")[ ]*Fax (" + PATTERN_PHONE_NUMBER + ")$" );
-	private static final Pattern	patternPhone					= Pattern.compile( "^(" + PATTERN_PHONE_NUMBER + ")" );
-	private static final Pattern	patternNameEmail				= Pattern.compile( "^(.*?)[ ]+" + PATTERN_EMAIL_822 + "$" );
-	
+	private static final Pattern patternEmailPhoneFax = Pattern.compile("^"
+			+ PATTERN_EMAIL_822 + " (" + PATTERN_PHONE_NUMBER + ") Fax: ("
+			+ PATTERN_PHONE_NUMBER + ")$");
+	private static final Pattern patternPhoneFax = Pattern
+			.compile("^(" + PATTERN_PHONE_NUMBER + ")[ ]*Fax ("
+					+ PATTERN_PHONE_NUMBER + ")$");
+	private static final Pattern patternPhone = Pattern.compile("^("
+			+ PATTERN_PHONE_NUMBER + ")");
+	private static final Pattern patternNameEmail = Pattern
+			.compile("^(.*?)[ ]+" + PATTERN_EMAIL_822 + "$");
+
 	// Domain information
-	private static final Pattern	patternDomainNameLabel			= Pattern.compile( "^Domain Name:([ ]*.*?)$" );
-	private static final Pattern	patternRegistrarName1Label		= Pattern.compile( "^Registrar Name:([ ]*.*?)$" );
-	private static final Pattern	patternRegistrarName2Label		= Pattern.compile( "^Registered through:([ ]*.*?)$" );
-	private static final Pattern	patternRegistrarWhoisLabel		= Pattern.compile( "^Registrar Whois:([ ]*.*?)$" );
-	private static final Pattern	patternRegistrarHomepageLabel	= Pattern.compile( "^Registrar Homepage:([ ]*.*?)$" );
+	private static final Pattern patternDomainNameLabel = Pattern
+			.compile("^Domain Name:([ ]*.*?)$");
+	private static final Pattern patternRegistrarName1Label = Pattern
+			.compile("^Registrar Name:([ ]*.*?)$");
+	private static final Pattern patternRegistrarName2Label = Pattern
+			.compile("^Registered through:([ ]*.*?)$");
+	private static final Pattern patternRegistrarWhoisLabel = Pattern
+			.compile("^Registrar Whois:([ ]*.*?)$");
+	private static final Pattern patternRegistrarHomepageLabel = Pattern
+			.compile("^Registrar Homepage:([ ]*.*?)$");
 
-	private static final Pattern[]	patternsCreatedOn				= {
-			Pattern.compile( "^Created on(.*?): 1997-09-15\\.$" ), // google.com
-			Pattern.compile( "^Record created on 19-Mar-1986\\.$" ), // ibm.com
-			Pattern.compile( "^Creation Date(.*?) 1991-05-02$" )	// microsoft.com
-																	};
+	private static final Pattern[] patternsCreatedOn = {
+			Pattern.compile("^Created on(.*?): 1997-09-15\\.$"), // google.com
+			Pattern.compile("^Record created on 19-Mar-1986\\.$"), // ibm.com
+			Pattern.compile("^Creation Date(.*?) 1991-05-02$") // microsoft.com
+	};
 
-	private static final Pattern[]	patternsExpiresOn				= {
-			Pattern.compile( "^Expires on(.*?): 1997-09-15\\.$" ), // google.com
-			Pattern.compile( "^Record expires on 19-Mar-1986\\.$" ), // ibm.com
-			Pattern.compile( "^Expiry Date(.*?) 2015-05-04$" )		// microsoft.com
-																	};
+	private static final Pattern[] patternsExpiresOn = {
+			Pattern.compile("^Expires on(.*?): 1997-09-15\\.$"), // google.com
+			Pattern.compile("^Record expires on 19-Mar-1986\\.$"), // ibm.com
+			Pattern.compile("^Expiry Date(.*?) 2015-05-04$") // microsoft.com
+	};
 
 	private enum LabelStates {
 		UNKNOWN, IN_REGISTRANT, IN_ADMINISTRATOR, IN_TECHNICAL, IN_NAMESERVER
 	};
 
-	public ParsedCRSNICResponse( String name, String data ) throws ParseException, IOException {
-		super( name, data );
-		parse( data );
+	public ParsedCRSNICResponse(String name, String data)
+			throws ParseException, IOException {
+		super(name, data);
+		parse(data);
 	}
 
 	/**
@@ -209,34 +226,30 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 	 *         on the object. false otherwise.
 	 * @throws ParseException
 	 */
-	protected static boolean parseContact( String line, AbstractContact contact) throws ParseException {
+	protected static boolean parseContact(String line, AbstractContact contact)
+			throws ParseException {
 		Matcher match;
 
-		if ( (match = patternNameEmail.matcher( line )).matches() ) {
-			contact.setName( match.group(0) );
-			contact.setEmail( match.group(1) );
+		if ((match = patternNameEmail.matcher(line)).matches()) {
+			contact.setName(match.group(0));
+			contact.setEmail(match.group(1));
 			return true;
-		}
-		else if ( (match = patternEmailPhoneFax.matcher( line )).matches() ) {
-			contact.setEmail( match.group(0) );
-			contact.setPhone( match.group(1) );
-			contact.setFax( match.group(2) );
+		} else if ((match = patternEmailPhoneFax.matcher(line)).matches()) {
+			contact.setEmail(match.group(0));
+			contact.setPhone(match.group(1));
+			contact.setFax(match.group(2));
 			return true;
-		}
-		else if ( (match = patternPhoneFax.matcher( line )).matches() ) {
-			contact.setPhone( match.group(0) );
-			contact.setFax( match.group(1) );
+		} else if ((match = patternPhoneFax.matcher(line)).matches()) {
+			contact.setPhone(match.group(0));
+			contact.setFax(match.group(1));
 			return true;
-		}
-		else if ( (match = patternPhone.matcher( line )).matches() ) {
-			contact.setPhone( match.group(0) );
+		} else if ((match = patternPhone.matcher(line)).matches()) {
+			contact.setPhone(match.group(0));
 			return true;
+		} else if (Countries.isCountry(line)) {
+			contact.setCountry(line);
 		}
-		else if ( Countries.isCountry( line ) )
-		{
-			contact.setCountry( line );
-		}
-		
+
 		return false;
 	}
 
@@ -249,7 +262,8 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 	 * @throws ParseException
 	 * @throws IOException
 	 */
-	protected synchronized boolean parse( String data ) throws ParseException, IOException {
+	protected synchronized boolean parse(String data) throws ParseException,
+			IOException {
 
 		Matcher match;
 		LabelStates state = LabelStates.UNKNOWN;
@@ -260,87 +274,83 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 
 		clearNameServers();
 
-		StringReader dataReader = new StringReader( data );
-		BufferedReader reader = new BufferedReader( dataReader );
+		StringReader dataReader = new StringReader(data);
+		BufferedReader reader = new BufferedReader(dataReader);
 		String line;
 
-		while ( (line = reader.readLine()) != null ) {
+		while ((line = reader.readLine()) != null) {
 			line = line.trim();
-			
+
 			//
-			
-			if ( (match = patternRegistrarName1Label.matcher( line )).matches() ) {
-				setRegistrar( match.group(0) );
+
+			if ((match = patternRegistrarName1Label.matcher(line)).matches()) {
+				setRegistrar(match.group(0));
+				continue;
+			} else if ((match = patternRegistrarName2Label.matcher(line))
+					.matches()) {
+				setRegistrar(match.group(0));
 				continue;
 			}
-			else if ( (match = patternRegistrarName2Label.matcher( line )).matches() ) {
-				setRegistrar( match.group(0) );
-				continue;
-			}
-			
+
 			//
-			
-			if ( (match = patternRegistrantLabel.matcher( line )).matches() ) {
+
+			if ((match = patternRegistrantLabel.matcher(line)).matches()) {
 				state = LabelStates.IN_REGISTRANT;
 				continue;
-			}
-			else if ( (match = patternAdministratorLabel.matcher( line )).matches() ) {
+			} else if ((match = patternAdministratorLabel.matcher(line))
+					.matches()) {
 				state = LabelStates.IN_ADMINISTRATOR;
 				continue;
-			}
-			else if ( (match = patternTechnicalLabel.matcher( line )).matches() ) {
+			} else if ((match = patternTechnicalLabel.matcher(line)).matches()) {
 				state = LabelStates.IN_TECHNICAL;
 				continue;
-			}
-			else if ( (match = patternNameServers1Label.matcher( line )).matches() ) {
+			} else if ((match = patternNameServers1Label.matcher(line))
+					.matches()) {
 				state = LabelStates.IN_NAMESERVER;
 				continue;
 			}
-			
+
 			//
-			
-			if ( (match = patternNameServers2Label.matcher( line )).matches() ) {
-				addNameServer( match.group(0) );
+
+			if ((match = patternNameServers2Label.matcher(line)).matches()) {
+				addNameServer(match.group(0));
 				continue;
 			}
-			
+
 			//
-			
-			switch(state)
-			{
-				case IN_REGISTRANT:
-					if (parseContact( line, registrant )) {
-						continue;
-					}
-					break;
-				case IN_ADMINISTRATOR:
-					if (parseContact( line, admin )) {
-						continue;
-					}
-					break;
-				case IN_TECHNICAL:
-					if (parseContact( line, tech )) {
-						continue;
-					}
-					break;
-				case IN_NAMESERVER:
-					addNameServer( line );
-					break;
+
+			switch (state) {
+			case IN_REGISTRANT:
+				if (parseContact(line, registrant)) {
+					continue;
+				}
+				break;
+			case IN_ADMINISTRATOR:
+				if (parseContact(line, admin)) {
+					continue;
+				}
+				break;
+			case IN_TECHNICAL:
+				if (parseContact(line, tech)) {
+					continue;
+				}
+				break;
+			case IN_NAMESERVER:
+				addNameServer(line);
+				break;
 			}
-			
-			
+
 		}
 		return true;
 	}
-
 
 	/**
 	 * Set the sponsoring registrar.
 	 * 
 	 * @param registrar
 	 */
-	protected abstract void setRegistrar( String registrar );
-	
+	protected abstract void setRegistrar(String registrar);
+
 	/**
 	 * Clear out the list of name servers.
 	 */
@@ -353,7 +363,7 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 	 *            A hostname.
 	 * @return
 	 */
-	protected abstract boolean removeNameServer( String nameserver );
+	protected abstract boolean removeNameServer(String nameserver);
 
 	/**
 	 * Add a name server to the name server list.
@@ -362,6 +372,6 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 	 *            A hostname.
 	 * @return
 	 */
-	protected abstract boolean addNameServer( String nameserver );
-	
+	protected abstract boolean addNameServer(String nameserver);
+
 }
