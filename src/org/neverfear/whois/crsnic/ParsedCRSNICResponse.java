@@ -151,8 +151,6 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 																			+ "\\[\\]]))|\\[([^\\[\\]\\r\\\\]|\\\\.)*\\](?:(?:\\r\\n)?[ \\t])*))*\\>"
 																			+ "(?:(?:\\r\\n)?[ \\t])*))*)?;\\s*)";
 
-	private static final DateFormat	format							= new SimpleDateFormat();
-	
 	// Name Servers
 	private static final Pattern	patternNameServers1Label		= Pattern.compile( "^Domain servers in listed order:$" );
 	private static final Pattern    patternNameServers2Label  		= Pattern.compile( "^Name Server[\\.]*[ ](.*?)$" );
