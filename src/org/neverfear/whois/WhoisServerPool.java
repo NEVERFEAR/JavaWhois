@@ -17,6 +17,11 @@ public class WhoisServerPool {
 	 * A Map of TLDs to WhoisServce instances.
 	 */
 	public static final HashMap<String, WhoisServer> servers = new HashMap<String, WhoisServer>() {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 2955465571286080919L;
+
 		{
 		    put(".br.com",  			new WhoisServer(".br.com",   				new ResolveDefault("whois.centralnic.net")));
 		    put(".cn.com",  			new WhoisServer(".cn.com",   				new ResolveDefault("whois.centralnic.net")));
