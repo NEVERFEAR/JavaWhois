@@ -6,9 +6,7 @@ package org.neverfear.whois.crsnic;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
