@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.neverfear.whois.crsnic;
+package org.neverfear.whois.parsers.crsnic;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,10 +12,11 @@ import java.util.regex.Pattern;
 
 import org.neverfear.whois.Countries;
 import org.neverfear.whois.WhoisResponse;
-import org.neverfear.whois.pir.AbstractContact;
-import org.neverfear.whois.pir.AdminContact;
-import org.neverfear.whois.pir.RegistrantContact;
-import org.neverfear.whois.pir.TechContact;
+import org.neverfear.whois.parsers.WhoisParseException;
+import org.neverfear.whois.parsers.pir.AbstractContact;
+import org.neverfear.whois.parsers.pir.AdminContact;
+import org.neverfear.whois.parsers.pir.RegistrantContact;
+import org.neverfear.whois.parsers.pir.TechContact;
 
 /**
  * A parsed CRSNIC response.
@@ -187,7 +188,7 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 		UNKNOWN, IN_REGISTRANT, IN_ADMINISTRATOR, IN_TECHNICAL, IN_NAMESERVER
 	};
 
-	public ParsedCRSNICResponse( String name, String data ) throws ParseException, IOException {
+	public ParsedCRSNICResponse( String name, String data) throws WhoisParseException {
 		super( name, data );
 		parse( data );
 	}
@@ -240,7 +241,7 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 	 * @throws ParseException
 	 * @throws IOException
 	 */
-	protected synchronized boolean parse( String data ) throws ParseException, IOException {
+	protected synchronized boolean parse( String data ) throws WhoisParseException {
 
 		Matcher match;
 		LabelStates state = LabelStates.UNKNOWN;
@@ -255,66 +256,72 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 		BufferedReader reader = new BufferedReader( dataReader );
 		String line;
 
-		while ( (line = reader.readLine()) != null ) {
-			line = line.trim();
-			
-			//
-			
-			if ( (match = patternRegistrarName1Label.matcher( line )).matches() ) {
-				setRegistrar( match.group(0) );
-				continue;
-			} else if ( (match = patternRegistrarName2Label.matcher( line )).matches() ) {
-				setRegistrar( match.group(0) );
-				continue;
+		try {
+			while ( (line = reader.readLine()) != null ) {
+				line = line.trim();
+				
+				//
+				
+				if ( (match = patternRegistrarName1Label.matcher( line )).matches() ) {
+					setRegistrar( match.group(0) );
+					continue;
+				} else if ( (match = patternRegistrarName2Label.matcher( line )).matches() ) {
+					setRegistrar( match.group(0) );
+					continue;
+				}
+				
+				//
+				
+				if ( (match = patternRegistrantLabel.matcher( line )).matches() ) {
+					state = LabelStates.IN_REGISTRANT;
+					continue;
+				} else if ( (match = patternAdministratorLabel.matcher( line )).matches() ) {
+					state = LabelStates.IN_ADMINISTRATOR;
+					continue;
+				} else if ( (match = patternTechnicalLabel.matcher( line )).matches() ) {
+					state = LabelStates.IN_TECHNICAL;
+					continue;
+				} else if ( (match = patternNameServers1Label.matcher( line )).matches() ) {
+					state = LabelStates.IN_NAMESERVER;
+					continue;
+				}
+				
+				//
+				
+				if ( (match = patternNameServers2Label.matcher( line )).matches() ) {
+					addNameServer( match.group(0) );
+					continue;
+				}
+				
+				//
+				
+				switch(state) {
+					case IN_REGISTRANT:
+						if (parseContact( line, registrant )) {
+							continue;
+						}
+						break;
+					case IN_ADMINISTRATOR:
+						if (parseContact( line, admin )) {
+							continue;
+						}
+						break;
+					case IN_TECHNICAL:
+						if (parseContact( line, tech )) {
+							continue;
+						}
+						break;
+					case IN_NAMESERVER:
+						addNameServer( line );
+						break;
+				}
+				
+				
 			}
-			
-			//
-			
-			if ( (match = patternRegistrantLabel.matcher( line )).matches() ) {
-				state = LabelStates.IN_REGISTRANT;
-				continue;
-			} else if ( (match = patternAdministratorLabel.matcher( line )).matches() ) {
-				state = LabelStates.IN_ADMINISTRATOR;
-				continue;
-			} else if ( (match = patternTechnicalLabel.matcher( line )).matches() ) {
-				state = LabelStates.IN_TECHNICAL;
-				continue;
-			} else if ( (match = patternNameServers1Label.matcher( line )).matches() ) {
-				state = LabelStates.IN_NAMESERVER;
-				continue;
-			}
-			
-			//
-			
-			if ( (match = patternNameServers2Label.matcher( line )).matches() ) {
-				addNameServer( match.group(0) );
-				continue;
-			}
-			
-			//
-			
-			switch(state) {
-				case IN_REGISTRANT:
-					if (parseContact( line, registrant )) {
-						continue;
-					}
-					break;
-				case IN_ADMINISTRATOR:
-					if (parseContact( line, admin )) {
-						continue;
-					}
-					break;
-				case IN_TECHNICAL:
-					if (parseContact( line, tech )) {
-						continue;
-					}
-					break;
-				case IN_NAMESERVER:
-					addNameServer( line );
-					break;
-			}
-			
-			
+		} catch (IOException e) {
+			throw new WhoisParseException("Failed to readLine", e);
+		} catch (ParseException e) {
+			throw new WhoisParseException("Failed to parse contact", e);
 		}
 		return true;
 	}

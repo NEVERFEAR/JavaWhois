@@ -1,5 +1,11 @@
 package org.neverfear.whois;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+
+import org.neverfear.whois.parsers.WhoisParseException;
+import org.neverfear.whois.parsers.pir.PublicInterestRegistryResponse;
+
 
 /**
  * Represents a public interest registry.
@@ -7,6 +13,20 @@ package org.neverfear.whois;
  */
 public class ResolvePIR extends ResolveCRSNIC {
 	
+	@Override
+	public WhoisResponse search(String name, String modifier) throws UnknownHostException, IOException {
+		WhoisResponse response = super.search(name, modifier);
+		try {
+			return new PublicInterestRegistryResponse(response);
+		} catch (WhoisParseException e) {
+			// TODO: This behaviour is going to be very helpful to users. 
+			// Need to fix this such that we allow the users to decide if they
+			// Simply want the raw response or whether they are genuinely 
+			// interested in the parsed response.
+			return response;
+		}
+	}
+
 	/**
 	 * The whois server host name.
 	 */

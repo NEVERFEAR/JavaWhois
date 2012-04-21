@@ -1,4 +1,4 @@
-package org.neverfear.whois.pir;
+package org.neverfear.whois.parsers.pir;
 
 import java.io.IOException;
 

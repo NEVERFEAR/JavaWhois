@@ -1,4 +1,4 @@
-package org.neverfear.whois.pir;
+package org.neverfear.whois.parsers.pir;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.neverfear.whois.WhoisResponse;
+import org.neverfear.whois.parsers.WhoisParseException;
 
 /**
  * A parsed public interest registry response.
@@ -74,7 +75,7 @@ public abstract class ParsedPIRResponse extends WhoisResponse {
 	 * @throws ParseException
 	 * @throws IOException
 	 */
-	public ParsedPIRResponse( String name, String data ) throws ParseException, IOException {
+	public ParsedPIRResponse( String name, String data ) throws WhoisParseException {
 		super( name, data );
 	}
 
@@ -185,7 +186,7 @@ public abstract class ParsedPIRResponse extends WhoisResponse {
 	 * @throws ParseException
 	 * @throws IOException
 	 */
-	protected synchronized boolean parse( String data ) throws ParseException, IOException {
+	protected boolean parse( String data ) throws WhoisParseException {
 		Matcher match;
 
 		RegistrantContact registrant = new RegistrantContact();
@@ -198,62 +199,68 @@ public abstract class ParsedPIRResponse extends WhoisResponse {
 		BufferedReader reader = new BufferedReader( dataReader );
 		String line;
 
-		while ( (line = reader.readLine()) != null ) {
-			if ( (match = patternDomainID.matcher( line )).matches() ) {
-				setID( match.group( 1 ) );
-				continue;
-			}
-
-			if ( (match = patternDomainName.matcher( line )).matches() ) {
-				setName( match.group( 1 ) );
-				continue;
-			}
-
-			if ( (match = patternCreatedOn.matcher( line )).matches() ) {
-				setCreatedOn( match.group( 1 ) );
-				continue;
-			}
-
-			if ( (match = patternLastUpdatedOn.matcher( line )).matches() ) {
-				setLastUpdated( match.group( 1 ) );
-				continue;
-			}
-
-			if ( (match = patternLastExpirationDate.matcher( line )).matches() ) {
-				setExpirationDate( match.group( 1 ) );
-				continue;
-			}
-
-			if ( (match = patternSponsoringRegistrar.matcher( line )).matches() ) {
-				setRegistrar( match.group( 1 ) );
-				continue;
-			}
-
-			if ( parseContact( line, registrant, REGISTRANT_PREFIX ) ) {
-				continue;
-			}
-
-			if ( parseContact( line, admin, ADMIN_PREFIX ) ) {
-				continue;
-			}
-
-			if ( parseContact( line, tech, TECH_PREFIX ) ) {
-				continue;
-			}
-
-			if ( (match = patternNameServer.matcher( line )).matches() ) {
-				String nameServer = match.group( 1 ).trim();
-				if ( nameServer.length() != 0 ) {
-					addNameServer( nameServer );
+		try {
+			while ( (line = reader.readLine()) != null ) {
+				if ( (match = patternDomainID.matcher( line )).matches() ) {
+					setID( match.group( 1 ) );
+					continue;
 				}
-				continue;
-			}
 
-			if ( (match = patternDnsSecurity.matcher( line )).matches() ) {
-				setDnsSecurity( match.group( 1 ) );
-				continue;
-			}
+				if ( (match = patternDomainName.matcher( line )).matches() ) {
+					setName( match.group( 1 ) );
+					continue;
+				}
 
+				if ( (match = patternCreatedOn.matcher( line )).matches() ) {
+					setCreatedOn( match.group( 1 ) );
+					continue;
+				}
+
+				if ( (match = patternLastUpdatedOn.matcher( line )).matches() ) {
+					setLastUpdated( match.group( 1 ) );
+					continue;
+				}
+
+				if ( (match = patternLastExpirationDate.matcher( line )).matches() ) {
+					setExpirationDate( match.group( 1 ) );
+					continue;
+				}
+
+				if ( (match = patternSponsoringRegistrar.matcher( line )).matches() ) {
+					setRegistrar( match.group( 1 ) );
+					continue;
+				}
+
+				if ( parseContact( line, registrant, REGISTRANT_PREFIX ) ) {
+					continue;
+				}
+
+				if ( parseContact( line, admin, ADMIN_PREFIX ) ) {
+					continue;
+				}
+
+				if ( parseContact( line, tech, TECH_PREFIX ) ) {
+					continue;
+				}
+
+				if ( (match = patternNameServer.matcher( line )).matches() ) {
+					String nameServer = match.group( 1 ).trim();
+					if ( nameServer.length() != 0 ) {
+						addNameServer( nameServer );
+					}
+					continue;
+				}
+
+				if ( (match = patternDnsSecurity.matcher( line )).matches() ) {
+					setDnsSecurity( match.group( 1 ) );
+					continue;
+				}
+
+			}
+		} catch (IOException e) {
+			throw new WhoisParseException("Failed to readLine", e);
+		} catch (ParseException e) {
+			throw new WhoisParseException("Failed to parse contact", e);
 		}
 
 		setRegistrant( registrant );
@@ -400,8 +407,7 @@ public abstract class ParsedPIRResponse extends WhoisResponse {
 
 	@Override
 	public String getData() {
-		if (super.getData() == null)
-		{
+		if (super.getData() == null) {
 			StringBuffer buffer = new StringBuffer();
 			
 			buffer.append( "Domain ID:" );
