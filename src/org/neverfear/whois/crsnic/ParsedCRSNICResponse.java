@@ -216,24 +216,19 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 			contact.setName( match.group(0) );
 			contact.setEmail( match.group(1) );
 			return true;
-		}
-		else if ( (match = patternEmailPhoneFax.matcher( line )).matches() ) {
+		} else if ( (match = patternEmailPhoneFax.matcher( line )).matches() ) {
 			contact.setEmail( match.group(0) );
 			contact.setPhone( match.group(1) );
 			contact.setFax( match.group(2) );
 			return true;
-		}
-		else if ( (match = patternPhoneFax.matcher( line )).matches() ) {
+		} else if ( (match = patternPhoneFax.matcher( line )).matches() ) {
 			contact.setPhone( match.group(0) );
 			contact.setFax( match.group(1) );
 			return true;
-		}
-		else if ( (match = patternPhone.matcher( line )).matches() ) {
+		} else if ( (match = patternPhone.matcher( line )).matches() ) {
 			contact.setPhone( match.group(0) );
 			return true;
-		}
-		else if ( Countries.isCountry( line ) )
-		{
+		} else if ( Countries.isCountry( line ) ) {
 			contact.setCountry( line );
 		}
 		
@@ -272,8 +267,7 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 			if ( (match = patternRegistrarName1Label.matcher( line )).matches() ) {
 				setRegistrar( match.group(0) );
 				continue;
-			}
-			else if ( (match = patternRegistrarName2Label.matcher( line )).matches() ) {
+			} else if ( (match = patternRegistrarName2Label.matcher( line )).matches() ) {
 				setRegistrar( match.group(0) );
 				continue;
 			}
@@ -283,12 +277,10 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 			if ( (match = patternRegistrantLabel.matcher( line )).matches() ) {
 				state = LabelStates.IN_REGISTRANT;
 				continue;
-			}
-			else if ( (match = patternAdministratorLabel.matcher( line )).matches() ) {
+			} else if ( (match = patternAdministratorLabel.matcher( line )).matches() ) {
 				state = LabelStates.IN_ADMINISTRATOR;
 				continue;
-			}
-			else if ( (match = patternTechnicalLabel.matcher( line )).matches() ) {
+			} else if ( (match = patternTechnicalLabel.matcher( line )).matches() ) {
 				state = LabelStates.IN_TECHNICAL;
 				continue;
 			} else if ( (match = patternNameServers1Label.matcher( line )).matches() ) {
@@ -305,8 +297,7 @@ public abstract class ParsedCRSNICResponse extends WhoisResponse {
 			
 			//
 			
-			switch(state)
-			{
+			switch(state) {
 				case IN_REGISTRANT:
 					if (parseContact( line, registrant )) {
 						continue;
