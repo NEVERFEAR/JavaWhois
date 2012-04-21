@@ -63,17 +63,29 @@ public class ResolveDefault implements ServerResolver {
 		String data		= "";
 		byte[] bytes	= new byte[1024];
 		Socket sock 	= new Socket(this.server, this.port);
-		InputStream in 	= sock.getInputStream();
-		PrintStream out	= new PrintStream(sock.getOutputStream());
-		
-		out.print(name + "\r\n");
-		out.flush();
-		
-		while((length = in.read(bytes)) != -1) {
-			data += new String(bytes, 0, length);
+		InputStream in 	= null;
+		PrintStream out	= null;
+		try {
+			in 	= sock.getInputStream();
+			out	= new PrintStream(sock.getOutputStream());
+			
+			out.print(name + "\r\n");
+			out.flush();
+			
+			while((length = in.read(bytes)) != -1) {
+				data += new String(bytes, 0, length);
+			}
+			
+			return new WhoisResponse(name, data);
+		} finally {
+			if (out != null) {
+				out.close();
+			}
+			if (in != null) {
+				in.close();
+			}
+			sock.close();
 		}
-		
-		return new WhoisResponse(name, data);
 	}
 
 }
